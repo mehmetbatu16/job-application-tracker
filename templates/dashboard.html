@@ -1,101 +1,67 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Job Application Tracker{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ username }}!</h2>
-<p><a href="/logout">Logout</a></p>
-
-<h3>Add New Job Application</h3>
-<form action="/dashboard" method="POST">
-    <div>
-        <label for="company_name">Company Name:</label>
-        <input type="text" id="company_name" name="company_name" required>
-    </div>
-    <br>
-    <div>
-        <label for="position">Position:</label>
-        <input type="text" id="position" name="position" required>
-    </div>
-    <br>
-    <div>
-        <label for="status">Status:</label>
-        <select id="status" name="status">
-            <option value="Applied">Applied</option>
-            <option value="Interviewing">Interviewing</option>
-            <option value="Offered">Offered</option>
-            <option value="Rejected">Rejected</option>
-        </select>
-    </div>
-    <br>
-    <div>
-        <label for="application_date">Date:</label>
-        <input type="date" id="application_date" name="application_date" required>
-    </div>
-    <br>
-    <div>
-        <label for="notes">Notes:</label>
-        <textarea id="notes" name="notes"></textarea>
-    </div>
-    <br>
-    <button type="submit">Add Application</button>
-</form>
-
-<hr>
-
-<h3>Your Job Applications</h3>
-
-<form action="/dashboard" method="GET">
-    <label for="filter_status">Filter by Status:</label>
-    <select id="filter_status" name="status" onchange="this.form.submit()">
-        <option value="">All Statuses</option>
-        <option value="Applied" {% if current_filter == 'Applied' %}selected{% endif %}>Applied</option>
-        <option value="Interviewing" {% if current_filter == 'Interviewing' %}selected{% endif %}>Interviewing</option>
-        <option value="Offered" {% if current_filter == 'Offered' %}selected{% endif %}>Offered</option>
-        <option value="Rejected" {% if current_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
-    </select>
-</form>
-<br>
-
-<table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-        <tr>
-            <th>Company</th>
-            <th>Position</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Notes</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for app in applications %}
-    <tr>
-        <td>{{ app.company_name }}</td>
-        <td>{{ app.position }}</td>
-        <td>
-            <form action="/update_status/{{ app.id }}" method="POST" style="margin:0;">
-                <select name="status" onchange="this.form.submit()">
-                    <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
-                    <option value="Interviewing" {% if app.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
-                    <option value="Offered" {% if app.status == 'Offered' %}selected{% endif %}>Offered</option>
-                    <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
-                </select>
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card p-4 mb-4 shadow-sm">
+            <h2 class="mb-4">Welcome, !</h2>
+            <a href="/logout" class="btn btn-outline-danger btn-sm mb-4" style="max-width: 100px;">Logout</a>
+            
+            <h3 class="mb-3">Add New Job Application</h3>
+            <form method="POST" action="/dashboard">
+                <div class="mb-3">
+                    <label class="form-label">Company Name:</label>
+                    <input type="text" name="company" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Position:</label>
+                    <input type="text" name="position" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status:</label>
+                    <select name="status" class="form-control">
+                        <option value="Applied">Applied</option>
+                        <option value="Interviewing">Interviewing</option>
+                        <option value="Offered">Offered</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date:</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Notes:</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Add Application</button>
             </form>
-        </td>
-        <td>{{ app.application_date }}</td>
-        <td>{{ app.notes if app.notes else '' }}</td>
-        <td>
-    <form action="/delete/{{ app.id }}" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to delete this application?');">
-        <button type="submit" style="background-color: #e74c3c; padding: 5px 10px; font-size: 14px;">Delete</button>
-    </form>
-</td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="5">No applications tracked yet.</td>
-    </tr>
-    {% endfor %}
-</tbody>
-</table>
+        </div>
+
+        <div class="card p-4 shadow-sm">
+            <h3 class="mb-3">Your Job Applications</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Position</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Notes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center">No applications tracked yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

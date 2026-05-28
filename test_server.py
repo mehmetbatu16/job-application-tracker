@@ -5,22 +5,27 @@ from pathlib import Path
 import urllib.parse
 
 USER_DATABASE = {}
+APPLICATIONS_DATABASE = []
 
 class TrackerTestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith('/static/') or self.path == '/static/style.css':
             return super().do_GET()
             
-        page_name = self.path.strip('/')
+        parsed_url = urllib.parse.urlparse(self.path)
+        page_name = parsed_url.path.strip('/')
+        
         if not page_name:
             page_name = 'index.html'
+        elif page_name.startswith('dashboard') or 'dashboard' in page_name:
+            page_name = 'dashboard.html'
         elif not page_name.endswith('.html') and not '.' in page_name:
             page_name += '.html'
             
         p = Path('templates') / page_name
         if not p.exists():
             self.send_response(302)
-            self.send_header('Location', '/')
+            self.send_header('Location', '/dashboard')
             self.end_headers()
             return
             
@@ -34,7 +39,7 @@ class TrackerTestHandler(http.server.SimpleHTTPRequestHandler):
         username = fields.get('username', [''])[0]
         password = fields.get('password', [''])[0]
         
-        if self.path == '/register':
+        if self.path.startswith('/register'):
             if not re.search(r'[A-Z]', password) or not re.search(r'[0-9]', password):
                 error_html = "<div style='background:#e74c3c;color:#fff;padding:15px;border-radius:5px;margin-bottom:20px;font-weight:bold;text-align:center;'>Password must contain at least one uppercase letter and one number!</div>"
                 self.render_and_send(Path('templates/register.html'), error_message=error_html, status_code=200)
@@ -46,7 +51,7 @@ class TrackerTestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
             
-        if self.path == '/login':
+        if self.path.startswith('/login'):
             if username in USER_DATABASE and USER_DATABASE[username] == password:
                 self.send_response(302)
                 self.send_header('Location', '/dashboard')
@@ -57,8 +62,34 @@ class TrackerTestHandler(http.server.SimpleHTTPRequestHandler):
                 self.render_and_send(Path('templates/login.html'), error_message=error_html, status_code=200)
                 return
 
+        if 'delete' in self.path or 'remove' in self.path:
+            parsed_url = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            app_idx = int(query_params.get('id', [-1])[0])
+            if 0 <= app_idx < len(APPLICATIONS_DATABASE):
+                APPLICATIONS_DATABASE.pop(app_idx)
+            self.send_response(302)
+            self.send_header('Location', '/dashboard')
+            self.end_headers()
+            return
+
+        company = fields.get('company', fields.get('company_name', ['']))[0]
+        position = fields.get('position', [''])[0]
+        status = fields.get('status', ['Applied'])[0]
+        date = fields.get('date', ['2026-05-28'])[0]
+        notes = fields.get('notes', [''])[0]
+
+        if company or position:
+            APPLICATIONS_DATABASE.append({
+                'company': company,
+                'position': position,
+                'status': status,
+                'date': date,
+                'notes': notes
+            })
+
         self.send_response(302)
-        self.send_header('Location', '/')
+        self.send_header('Location', '/dashboard')
         self.end_headers()
 
     def render_and_send(self, file_path, error_message="", status_code=200):
@@ -74,7 +105,24 @@ class TrackerTestHandler(http.server.SimpleHTTPRequestHandler):
         
         if error_message:
             content = error_message + content
-        
+            
+        if file_path.name == 'dashboard.html':
+            table_rows = ""
+            for idx, app in enumerate(APPLICATIONS_DATABASE):
+                table_rows += f"""
+                <tr class="job-row">
+                    <td>{app['company']}</td>
+                    <td>{app['position']}</td>
+                    <td><span class="badge" style="background-color:#3498db; color:white; padding:5px 10px; border-radius:4px; font-weight:bold; display:inline-block;">{app['status']}</span></td>
+                    <td>{app['date']}</td>
+                    <td>{app['notes']}</td>
+                    <td><form method="POST" action="/delete?id={idx}" style="margin:0;"><button type="submit" class="btn btn-danger btn-sm" style="background-color:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Delete</button></form></td>
+                </tr>
+                """
+            
+            if APPLICATIONS_DATABASE:
+                content = re.sub(r'<tr>\s*<td[^>]*>.*?</td>\s*</tr>', table_rows, content, flags=re.DOTALL)
+
         if base:
             res = re.sub(r'{% block title %}.*?{% endblock %}', title, base)
             res = re.sub(r'{% block content %}.*?{% endblock %}', content, res)
