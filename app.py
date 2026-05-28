@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_scheduler, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session
 from database import init_db
 from auth import register_user, authenticate_user
 from jobs import add_job_application, get_user_applications
@@ -56,8 +56,9 @@ def dashboard():
         add_job_application(user_id, company_name, position, status, application_date, notes)
         return redirect(url_for("dashboard"))
         
-    applications = get_user_applications(user_id)
-    return render_template("dashboard.html", username=session["username"], applications=applications)
+    status_filter = request.args.get("status")
+    applications = get_user_applications(user_id, status_filter)
+    return render_template("dashboard.html", username=session["username"], applications=applications, current_filter=status_filter)
 
 @app.route("/logout")
 def logout():
