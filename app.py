@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from database import init_db
 from auth import register_user, authenticate_user
-from jobs import add_job_application, get_user_applications, update_application_status
+from jobs import add_job_application, get_user_applications, update_application_status, delete_job_application
 
 app = Flask(__name__)
 app.secret_key = "super_secret_session_key_for_seng_project"
@@ -73,6 +73,14 @@ def update_status(app_id):
     user_id = session["user_id"]
     
     update_application_status(app_id, user_id, new_status)
+    return redirect(url_for("dashboard"))
+@app.route("/delete/<int:app_id>", methods=["POST"])
+def delete_application(app_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
+    user_id = session["user_id"]
+    delete_job_application(app_id, user_id)
     return redirect(url_for("dashboard"))
 if __name__ == "__main__":
     init_db()
