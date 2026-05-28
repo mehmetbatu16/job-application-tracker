@@ -44,6 +44,19 @@
 <hr>
 
 <h3>Your Job Applications</h3>
+
+<form action="/dashboard" method="GET">
+    <label for="filter_status">Filter by Status:</label>
+    <select id="filter_status" name="status" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        <option value="Applied" {% if current_filter == 'Applied' %}selected{% endif %}>Applied</option>
+        <option value="Interviewing" {% if current_filter == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+        <option value="Offered" {% if current_filter == 'Offered' %}selected{% endif %}>Offered</option>
+        <option value="Rejected" {% if current_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+</form>
+<br>
+
 <table border="1" cellpadding="5" cellspacing="0">
     <thead>
         <tr>

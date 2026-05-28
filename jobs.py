@@ -16,13 +16,19 @@ def add_job_application(user_id, company_name, position, status, application_dat
     finally:
         connection.close()
 
-def get_user_applications(user_id):
+def get_user_applications(user_id, status_filter=None):
     connection = get_db_connection()
     cursor = connection.cursor()
-    cursor.execute(
-        "SELECT * FROM applications WHERE user_id = ? ORDER BY application_date DESC",
-        (user_id,)
-    )
+    if status_filter:
+        cursor.execute(
+            "SELECT * FROM applications WHERE user_id = ? AND status = ? ORDER BY application_date DESC",
+            (user_id, status_filter)
+        )
+    else:
+        cursor.execute(
+            "SELECT * FROM applications WHERE user_id = ? ORDER BY application_date DESC",
+            (user_id,)
+        )
     applications = cursor.fetchall()
     connection.close()
     return applications
