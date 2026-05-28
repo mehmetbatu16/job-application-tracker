@@ -32,3 +32,18 @@ def get_user_applications(user_id, status_filter=None):
     applications = cursor.fetchall()
     connection.close()
     return applications
+def update_application_status(application_id, user_id, new_status):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "UPDATE applications SET status = ? WHERE id = ? AND user_id = ?",
+            (new_status, application_id, user_id)
+        )
+        connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating status: {e}")
+        return False
+    finally:
+        connection.close()

@@ -68,19 +68,28 @@
         </tr>
     </thead>
     <tbody>
-        {% for app in applications %}
-        <tr>
-            <td>{{ app.company_name }}</td>
-            <td>{{ app.position }}</td>
-            <td>{{ app.status }}</td>
-            <td>{{ app.application_date }}</td>
-            <td>{{ app.notes if app.notes else '' }}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="5">No applications tracked yet.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+    {% for app in applications %}
+    <tr>
+        <td>{{ app.company_name }}</td>
+        <td>{{ app.position }}</td>
+        <td>
+            <form action="/update_status/{{ app.id }}" method="POST" style="margin:0;">
+                <select name="status" onchange="this.form.submit()">
+                    <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
+                    <option value="Interviewing" {% if app.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+                    <option value="Offered" {% if app.status == 'Offered' %}selected{% endif %}>Offered</option>
+                    <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </form>
+        </td>
+        <td>{{ app.application_date }}</td>
+        <td>{{ app.notes if app.notes else '' }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="5">No applications tracked yet.</td>
+    </tr>
+    {% endfor %}
+</tbody>
 </table>
 {% endblock %}
