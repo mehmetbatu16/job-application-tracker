@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Job Application Tracker{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ username }}!</h2>
+<p><a href="/logout">Logout</a></p>
+
+<h3>Add New Job Application</h3>
+<form action="/dashboard" method="POST">
+    <div>
+        <label for="company_name">Company Name:</label>
+        <input type="text" id="company_name" name="company_name" required>
+    </div>
+    <br>
+    <div>
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" required>
+    </div>
+    <br>
+    <div>
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="Applied">Applied</option>
+            <option value="Interviewing">Interviewing</option>
+            <option value="Offered">Offered</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+    </div>
+    <br>
+    <div>
+        <label for="application_date">Date:</label>
+        <input type="date" id="application_date" name="application_date" required>
+    </div>
+    <br>
+    <div>
+        <label for="notes">Notes:</label>
+        <textarea id="notes" name="notes"></textarea>
+    </div>
+    <br>
+    <button type="submit">Add Application</button>
+</form>
+
+<hr>
+
+<h3>Your Job Applications</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for app in applications %}
+        <tr>
+            <td>{{ app.company_name }}</td>
+            <td>{{ app.position }}</td>
+            <td>{{ app.status }}</td>
+            <td>{{ app.application_date }}</td>
+            <td>{{ app.notes if app.notes else '' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No applications tracked yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
