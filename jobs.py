@@ -47,3 +47,18 @@ def update_application_status(application_id, user_id, new_status):
         return False
     finally:
         connection.close()
+def delete_job_application(application_id, user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM applications WHERE id = ? AND user_id = ?",
+            (application_id, user_id)
+        )
+        connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error deleting application: {e}")
+        return False
+    finally:
+        connection.close()
