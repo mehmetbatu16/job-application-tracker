@@ -4,6 +4,11 @@
 
 {% block content %}
 <h2>Create an Account</h2>
+
+{% if error_message %}
+    {{ error_message | safe }}
+{% endif %}
+
 <form action="/register" method="POST">
     <div>
         <label for="username">Username:</label>
@@ -13,6 +18,7 @@
     <div>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
+        <small style="color: #666; display: block; margin-top: 5px;">Must contain at least 1 uppercase letter and 1 number.</small>
     </div>
     <br>
     <button type="submit">Register</button>
